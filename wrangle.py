@@ -37,7 +37,8 @@ def prep_bees():
     df['colonies_net_gain'] = df.ending_colonies - df.starting_colonies
     # create a column for beekeeper to colony ratio
     df['beekeeper_colony_ratio'] = df.ending_colonies / df.beekeepers
-    
+    # look at only beekeepers exclusive to state
+    df = df[df.beekeepers_exclusive_to_state == 100]
     # return the cleaned and sorted dataframe
     return df
 
