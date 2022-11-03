@@ -117,9 +117,9 @@ def ts_bee_prep():
     # remove multstate and non_continental data
     df2 = df2[(df2.state != "multistates") & (df2.state != "non_continental_usa")]
     # create column net gain / loss for each state
-    df['colonies_net_gain'] = df.ending_colonies - df.starting_colonies
+    df2['colonies_net_gain'] = df2.ending_colonies - df2.starting_colonies
     # create a column for beekeeper to colony ratio
-    df['beekeeper_colony_ratio'] = df.ending_colonies / df.beekeepers
+    df2['beekeeper_colony_ratio'] = df2.ending_colonies / df2.beekeepers
     # add the month of October to winter observations (prep for datetime conversion)
     df2.year[df2.season=='winter'] = df2.year.astype(str) + '-10-01'
     # add the month of April to summer observations (prep for datetime conversions)
@@ -128,6 +128,7 @@ def ts_bee_prep():
     df2.year[df2.season=='annual'] = df2.year.astype(str) + '-01-01'
     # convert year column to datetime
     df2.year = pd.to_datetime(df2.year)
+    # return dataframe
     return df2
 
 def ts_split(df2):
