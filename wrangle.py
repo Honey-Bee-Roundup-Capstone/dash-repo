@@ -105,3 +105,10 @@ def ts_bee_prep():
     df2.year[df2.season=='annual'] = df2.year.astype(str) + '-01-01'
     df2.year = pd.to_datetime(df2.year)
     return df2
+
+def ts_split(df2):
+    train = df2[df2['year'].dt.year <= 2017]
+    val = df2[df2['year'].dt.year > 2017]
+    validate = val[val['year'].dt.year <= 2020]
+    test = val[val['year'].dt.year > 2020]
+    return train, validate, test
