@@ -88,27 +88,59 @@ def bee_merged():
     return df
 
 def ts_bee_prep():
+    '''This function loads the bee colony loss csv into a pandas dataframe. It cleans the data and prepares it for time
+        series analysis. The function returns the cleaned dataframe with the year converted to datetime.'''
+    # pull in the csv and save to a variable
     df2 = pd.read_csv('bee_colony_loss.csv')
+    # drop the unnamed index column
     df2 = df2.drop(columns='Unnamed: 0')
+    # make the season column all lowercase
     df2.season = df2.season.str.lower()
+    # make the state column lowercase and replace spaces with underscores
     df2.state = df2.state.str.lower().str.replace(' ','_')
+    # remove observations with 10 or less beekeepers (info in these columns is null due to privacy protections)
     df2 = df2[df2.beekeepers > 10]
+    # get dummy variables for the season column and save to a dataframe
     dummy_df = pd.get_dummies(df2.season)
+    # concatenate the dummy_df with the original df2
     df2 = pd.concat([df2, dummy_df], axis=1)
+    # isolate beekeepers exclusive to state and resave 
     df2 = df2[df2.beekeepers_exclusive_to_state == 100]
+    # change average_loss to a float
     df2.average_loss = df2.average_loss.astype(float)
+    # change total_loss to a float
     df2.total_loss = df2.total_loss.astype(float)
+    # change colonies_lost to an integer
     df2.colonies_lost = df2.colonies_lost.astype(int)
+    # change ending_colonies to an integer
     df2.ending_colonies = df2.ending_colonies.astype(int)
+    # remove multstate and non_continental data
+    df2 = df2[(df2.state != "multistates") & (df2.state != "non_continental_usa")]
+    # create column net gain / loss for each state
+    df['colonies_net_gain'] = df.ending_colonies - df.starting_colonies
+    # create a column for beekeeper to colony ratio
+    df['beekeeper_colony_ratio'] = df.ending_colonies / df.beekeepers
+    # add the month of October to winter observations (prep for datetime conversion)
     df2.year[df2.season=='winter'] = df2.year.astype(str) + '-10-01'
+    # add the month of April to summer observations (prep for datetime conversions)
     df2.year[df2.season=='summer'] = df2.year.astype(str) + '-04-01'
+    # add the month of January to annual observations (prep for datetime conversion)
     df2.year[df2.season=='annual'] = df2.year.astype(str) + '-01-01'
+    # convert year column to datetime
     df2.year = pd.to_datetime(df2.year)
     return df2
 
 def ts_split(df2):
+    '''This function takes in the dataframe from the ts_bee_prep function and splits it into train, validate, and test
+        by year. Train is data up to and including 2017, validate is from 2018-2020, and test is 2021-2022. The function
+        returns three dataframes: train, validate, test.'''
+    # split dataframe at the end of 2017 and save into train    
     train = df2[df2['year'].dt.year <= 2017]
+    # create a variable to hold data after 2017 that will be split again
     val = df2[df2['year'].dt.year > 2017]
+    # split val dataframe at the end of 2020 and save into validate
     validate = val[val['year'].dt.year <= 2020]
+    # split val dataframe and save 2021-2022 data into test
     test = val[val['year'].dt.year > 2020]
+    # return three dataframes for exploration and modeling
     return train, validate, test
