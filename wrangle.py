@@ -86,3 +86,22 @@ def bee_merged():
     
     #return back dataframe
     return df
+
+def ts_bee_prep():
+    df2 = pd.read_csv('bee_colony_loss.csv')
+    df2 = df2.drop(columns='Unnamed: 0')
+    df2.season = df2.season.str.lower()
+    df2.state = df2.state.str.lower().str.replace(' ','_')
+    df2 = df2[df2.beekeepers > 10]
+    dummy_df = pd.get_dummies(df2.season)
+    df2 = pd.concat([df2, dummy_df], axis=1)
+    df2 = df2[df2.beekeepers_exclusive_to_state == 100]
+    df2.average_loss = df2.average_loss.astype(float)
+    df2.total_loss = df2.total_loss.astype(float)
+    df2.colonies_lost = df2.colonies_lost.astype(int)
+    df2.ending_colonies = df2.ending_colonies.astype(int)
+    df2.year[df2.season=='winter'] = df2.year.astype(str) + '-10-01'
+    df2.year[df2.season=='summer'] = df2.year.astype(str) + '-04-01'
+    df2.year[df2.season=='annual'] = df2.year.astype(str) + '-01-01'
+    df2.year = pd.to_datetime(df2.year)
+    return df2
