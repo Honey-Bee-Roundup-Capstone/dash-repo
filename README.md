@@ -298,10 +298,15 @@ We can reject the null hypothesis that there is no difference in colony loss bet
 
 
                                  model   RMSE_train  RMSE_validate
+
 0                             Baseline  2794.490927    1715.116523
+
 1                        OLS Regressor  1212.600000     900.120000
+
 2                 LASSOLARS(alpha = 1)  1213.010000     882.290000
+
 3  Tweedie Regressor(power=1, alpha=0)  1557.260000    1614.440000
+
 4    Polynomial Regression(degree = 2)   394.350000    3512.810000
 
 
